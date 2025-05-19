@@ -79,6 +79,19 @@ function preprocess_lu(spatial_process::CovarianceProcess, domain, data, init=Ne
     return preprocess_lu(Random.default_rng(), spatial_process, domain, data, init)
 end
 
+function preprocess_z(::CovarianceProcess, zfamily, lu_params, ϵ=cbrt(eps()))
+    μx = copy(lu_params.d₂)
+    data = lu_params.z₁
+    L = lu_params.L₂₂
+
+    μx[μx .< ϵ] .= ϵ 
+    μx = μx .* mean(data) ./ mean(μx)
+    μz = L \ μx
+    μz[μz .<= ϵ] .= ϵ
+    vz = ones(length(μz))
+    return [zfamily(p...) for p in dist_params.(zfamily, μz, vz)]
+end
+
 function nonneg_lumult(lu_params, z)
     data = lu_params.z₁
     L = lu_params.L₂₂

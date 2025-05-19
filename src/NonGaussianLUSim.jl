@@ -3,7 +3,7 @@ module NonGaussianLUSim
 # Write your package code here.
 
 using GeoStats
-using GeoStats.GeoStatsProcesses: FieldProcess, _zeros, randinit, _pairwise, randsingle
+using GeoStats.GeoStatsProcesses: FieldProcess, _zeros, randinit, _pairwise, randsingle, preprocess
 using Distributions
 using LinearAlgebra
 using StatsBase
@@ -24,6 +24,7 @@ export CovarianceProcess,
     choose_z_distribution
 
 include("covariance_process.jl")
+include("lindgren_process.jl")
 
 # wraps CovarianceProcess or LindgrenProcess
 ContinuousFieldProcess = Union{CovarianceProcess, LindgrenProcess}
@@ -44,18 +45,6 @@ dist_params(d::Type{InverseGaussian}, μ, v) = (μ, μ^3 / v)
 dist_params(d::Type{InverseGamma}, μ, v) = (μ^2 / v + 2, μ^3/v + μ)
 dist_params(d::Type{LogNormal}, μ, v) = ( log(μ) - log(v/exp(2log(μ)) + 1) / 2, sqrt(log(v/exp(2log(μ)) + 1)) )
 
-function preprocess_z(::CovarianceProcess, zfamily, lu_params, ϵ=cbrt(eps()))
-    μx = copy(lu_params.d₂)
-    data = lu_params.z₁
-    L = lu_params.L₂₂
-
-    μx[μx .< ϵ] .= ϵ 
-    μx = μx .* mean(data) ./ mean(μx)
-    μz = L \ μx
-    μz[μz .<= ϵ] .= ϵ
-    vz = ones(length(μz))
-    return [zfamily(p...) for p in dist_params.(zfamily, μz, vz)]
-end
 
 function GeoStatsProcesses.preprocess(rng::AbstractRNG, process::NonGaussianProcess, method::LUNGS, init,
         domain, data, ϵ=cbrt(eps()))
