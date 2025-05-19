@@ -96,10 +96,10 @@ sims = rand(proc, grid, 100, data=data)
 
 xx = [s.x for s in sims]
 
-lines(xx[1])
-for i in 2:100
-    lines!(xx[i])
-end
+# lines(xx[1])
+# for i in 2:100
+#     lines!(xx[i])
+# end
 # (; var, Q, F, σ², i₁, i₂, z̄) = lu_params
 
 # # unconditional realization at vertices
