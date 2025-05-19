@@ -161,6 +161,11 @@ function GeoStatsProcesses.randsingle(rng::AbstractRNG, process::NonGaussianProc
     return (; cols...)
 end
 
+function GeoStatsProcesses.randsingle(process::NonGaussianProcess, domain, data, preproc)
+    rng = Random.default_rng()
+    randsingle(rng, process::NonGaussianProcess, LUNGS(), domain, data, preproc)
+end
+
 function nonneg_lumult(lu_params, z)
     data = lu_params.z₁
     L = lu_params.L₂₂
