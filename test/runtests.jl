@@ -39,9 +39,18 @@ proc = NonGaussianProcess(sp1, Gamma)
 preproc = GeoStatsProcesses.preprocess(rng, proc, LUNGS(), NearestInit(), grid, data)
 
 sim1 = GeoStatsProcesses.randsingle(rng, proc, LUNGS(), grid, data, preproc)
-
+sim1 = GeoStatsProcesses.randsingle(proc, grid, data, preproc)
 
 sim2 = rand(proc, grid, method=LUNGS(), data=data)
+sim2 = rand(proc, grid, data=data)
+
+
+compare_z_distributions([Gamma, InverseGaussian], sp1, grid, data, n=10, verbose=true)
+choose_z_distribution([Gamma, InverseGaussian], sp1, grid, data, n=10, verbose=true)
+
+rand(proc, grid, 100, data=data)
+
+
 
 @testset "NonGaussianLUSim.jl" begin
 

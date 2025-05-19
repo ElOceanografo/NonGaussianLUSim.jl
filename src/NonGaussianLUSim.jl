@@ -3,9 +3,11 @@ module NonGaussianLUSim
 # Write your package code here.
 
 using GeoStats
-using GeoStats.GeoStatsProcesses: FieldProcess, _zeros, randinit, _pairwise
+using GeoStats.GeoStatsProcesses: FieldProcess, _zeros, randinit, _pairwise, randsingle
 using Distributions
 using LinearAlgebra
+using StatsBase
+using DataFrames
 using Random
 
 export CovarianceProcess,
@@ -17,7 +19,9 @@ export CovarianceProcess,
     dist_params,
     preprocess_z,
     preprocess,
-    randsingle
+    randsingle,
+    compare_z_distributions,
+    choose_z_distribution
 
 struct CovarianceProcess{F,M} <: FieldProcess
     func::F
@@ -144,10 +148,8 @@ end
 
   
 function GeoStatsProcesses.randsingle(rng::AbstractRNG, process::NonGaussianProcess, ::LUNGS, domain, data, preproc)
-
     # simulate first variable
     var₁, z₁ = nonneg_lusim(rng, process.spatial_process, preproc)
-
 #   cols = if length(preproc) > 1
 #     # simulate second variable
 #     ρ = _rho(process.func)
@@ -157,7 +159,6 @@ function GeoStatsProcesses.randsingle(rng::AbstractRNG, process::NonGaussianProc
 #     (var₁ => z₁,)
 #   end
     cols = (var₁ => z₁,)
-
     return (; cols...)
 end
 
@@ -190,4 +191,45 @@ function nonneg_lusim(rng, spatial_process::CovarianceProcess, preproc)
     return var, nonneg_lumult(preproc.lu_params, z)
 end
 
+GeoStatsProcesses.defaultsimulation(process::NonGaussianProcess, domain; data) = LUNGS()
+
+function compare_z_distributions(candidate_dists, spatial_process, domain, data;
+        n=500, verbose=false)
+    icol = only(findall(name -> name != "geometry", names(data)))
+    x = data[:, icol]
+    h_data = normalize(fit(Histogram, x), mode=:density)
+    bin_edges = h_data.edges[1]
+    lu_params = preprocess_lu(spatial_process, domain, data)
+
+    fit_list = []
+    for Dist in candidate_dists
+        if verbose
+            println("Comparing with $(Dist)...")
+        end
+        process = NonGaussianProcess(spatial_process, Dist)
+        z_params = preprocess_z(Dist, lu_params)
+        preproc = LUNGSPrep(lu_params, z_params)
+        fits = map(1:n) do i
+            x_sim = randsingle(process, domain, data, preproc)[1]
+            h_sim = normalize(fit(Histogram, x_sim, bin_edges), mode=:density)
+            kld = evaluate(KLDivergence(), h_data.weights, h_sim.weights)
+            (distribution=Dist, kld=kld)
+        end
+        push!(fit_list, DataFrame(fits))
+    end
+    dist_fits = vcat(fit_list...)
+    dist_fits = dist_fits[isfinite.(dist_fits.kld), :]
+    return combine(groupby(dist_fits, :distribution),
+        :kld => mean,
+        :kld => (x -> std(x) / sqrt(length(x))) => :kld_se
+    )
 end
+
+function choose_z_distribution(candidate_dists, spatial_process, domain, data;
+        n=500, verbose=false)
+    dist_fits = compare_z_distributions(candidate_dists, spatial_process, domain, data;
+        n, verbose)
+    return dist_fits.distribution[argmin(dist_fits.kld_mean)] 
+end
+
+end # module
