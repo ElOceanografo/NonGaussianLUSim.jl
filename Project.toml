@@ -3,7 +3,19 @@ uuid = "c80a9637-d733-45ab-b18e-38e31a8f3d32"
 authors = ["Sam Urmy <oceanographerschoice@gmail.com> and contributors"]
 version = "1.0.0-DEV"
 
+[deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+GeoStats = "dcc97b0b-8ce5-5539-9008-bb190f959ef6"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+
 [compat]
+DataFrames = "1.7.0"
+Distributions = "0.25.120"
+GeoStats = "0.78.3"
+LinearAlgebra = "1.11.0"
+Random = "1.11.0"
 julia = "1.6.7"
 
 [extras]
