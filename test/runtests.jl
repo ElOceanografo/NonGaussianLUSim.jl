@@ -31,7 +31,7 @@ spde_prep = GeoStatsProcesses.preprocess(rng, sp2, nothing, NearestInit(), grid,
 lu_params = preprocess_lu(rng, sp1, grid, data, NearestInit())
 lu_params = preprocess_lu(sp1, grid, data, NearestInit())
 lu_params = preprocess_lu(sp1, grid, data)
-z_params = preprocess_z(Gamma, lu_params)
+z_params = preprocess_z(sp1, Gamma, lu_params)
 preproc = LUNGSPrep(lu_params, z_params)
 
 
