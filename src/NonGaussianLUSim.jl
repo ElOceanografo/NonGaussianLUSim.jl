@@ -94,10 +94,11 @@ function compare_z_distributions(candidate_dists, spatial_process, domain, data;
     end
     dist_fits = vcat(fit_list...)
     dist_fits = dist_fits[isfinite.(dist_fits.kld), :]
-    return combine(groupby(dist_fits, :distribution),
+    dist_fits = combine(groupby(dist_fits, :distribution),
         :kld => mean,
         :kld => (x -> std(x) / sqrt(length(x))) => :kld_se
     )
+    return sort(dist_fits, :kld_mean)
 end
 
 function choose_z_distribution(candidate_dists, spatial_process, domain, data;
