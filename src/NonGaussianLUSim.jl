@@ -74,12 +74,12 @@ function compare_z_distributions(candidate_dists, spatial_process, domain, data;
     x = data[:, icol]
     h_data = normalize(fit(Histogram, x), mode=:density)
     bin_edges = h_data.edges[1]
-    verbose || println("Preprocessing LU simulation...")
+    verbose && println("Preprocessing LU simulation...")
     lu_params = preprocess_lu(spatial_process, domain, data)
 
     fit_list = []
     for Dist in candidate_dists
-        verbose || println("Comparing with $(Dist)...")
+        verbose && println("Comparing with $(Dist)...")
         process = NonGaussianProcess(spatial_process, Dist)
         z_params = preprocess_z(spatial_process, Dist, lu_params)
         preproc = LUNGSPrep(lu_params, z_params)
