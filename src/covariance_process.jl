@@ -106,7 +106,7 @@ end
 
 function nonneg_lusim(rng, spatial_process::CovarianceProcess, preproc)
     # nonneg_lusim(rng, process, preproc.lu_params, preproc.z_params)
-    z = rand.(preproc.z_params)
+    z = rand.(rng, preproc.z_params)
     var = preproc.lu_params.var
     return var, nonneg_lumult(preproc.lu_params, z)
 end
