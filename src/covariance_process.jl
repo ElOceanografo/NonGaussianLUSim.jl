@@ -13,6 +13,16 @@ end
 CovarianceProcess(func, mean) = CovarianceProcess{typeof(func),typeof(mean)}(func, mean)
 CovarianceProcess(func) = CovarianceProcess(func, _zeros(nvariates(func)))
 
+
+function nonneg!(L::AbstractMatrix)
+    for i in eachindex(L)
+        if L[i] < 0
+            L[i] = 0
+        end
+    end
+    return L
+end
+
 function preprocess_lu(::AbstractRNG, spatial_process::CovarianceProcess,
         domain, data, init=NearestInit())
     # spatial_process parameters
@@ -84,8 +94,8 @@ function preprocess_z(::CovarianceProcess, zfamily, lu_params, ϵ=cbrt(eps()))
     data = lu_params.z₁
     L = lu_params.L₂₂
 
-    μx[μx .< ϵ] .= ϵ 
-    μx = μx .* mean(data) ./ mean(μx)
+    # μx[μx .< ϵ] .= ϵ 
+    # μx = μx .* mean(data) ./ mean(μx)
     μz = L \ μx
     μz[μz .<= ϵ] .= ϵ
     vz = ones(length(μz))
@@ -99,7 +109,26 @@ function nonneg_lumult(lu_params, z)
 
     npts = length(dinds) + length(sinds)
     x = zeros(npts)
-    x[sinds] = L * z
+    xsim = L * z
+    
+    # m = mean(xsim)
+    # x0 = minimum(xsim)
+    # for i in eachindex(xsim)
+    #     if xsim[i] < 0
+    #         xsim[i] = 0
+    #     end
+    # end
+    # xsim = xsim .* m ./ mean(xsim)
+
+
+    if any(xsim .< 0)
+        m = mean(xsim)
+        xsim[xsim .< 0] .= 0
+        xsim = xsim .* m ./ mean(xsim)
+    end
+
+
+    x[sinds] = xsim
     x[dinds] = data
     return x
 end
