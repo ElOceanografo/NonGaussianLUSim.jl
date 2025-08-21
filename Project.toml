@@ -16,13 +16,13 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 [compat]
 DataFrames = "1.7.0"
 Distributions = "0.25.120"
-GeoStats = "0.78.3"
+GeoStats = "0.81.6"
 LinearAlgebra = "1.11.0"
 NMF = "1.0.3"
 Plots = "1.40.13"
 Random = "1.11.0"
 StatsBase = "0.34.5"
-julia = "1.9"
+julia = "1.10"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
