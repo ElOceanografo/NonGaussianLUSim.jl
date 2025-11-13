@@ -1,7 +1,7 @@
 name = "NonGaussianLUSim"
 uuid = "c80a9637-d733-45ab-b18e-38e31a8f3d32"
-authors = ["Sam Urmy <oceanographerschoice@gmail.com> and contributors"]
 version = "0.1.0"
+authors = ["Sam Urmy <oceanographerschoice@gmail.com> and contributors"]
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
@@ -16,7 +16,7 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 [compat]
 DataFrames = "1.7.0"
 Distributions = "0.25.120"
-GeoStats = "0.81.6, 0.82"
+GeoStats = "0.81.6, 0.82, 0.83"
 LinearAlgebra = "1.10.0"
 NMF = "1.0.3"
 Plots = "1.40.13"
